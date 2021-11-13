@@ -1,47 +1,43 @@
+import os
+from typing import Tuple, Union
+from pathlib import Path
+import pandas as pd
+
+import torchaudio
+from torch import Tensor
 from torch.utils.data import Dataset
-from audio_util import AudioUtil
+from torchaudio.datasets.utils import (
+    download_url,
+    extract_archive,
+)
+
+
+def load_item(file_id: str, path: str, ext_audio: str, df: pd.DataFrame) -> Tuple[Tensor, int, str]:
+    df_file_id = df.iloc[:, 0]
 
 
 # ----------------------------
 # Sound Dataset
 # ----------------------------
 class SoundDS(Dataset):
-    def __init__(self, df, data_path):
-        self.df = df
-        self.data_path = str(data_path)
-        self.duration = 4000
-        self.sr = 44100
-        self.channel = 2
-        self.shift_pct = 0.4
+    _ext_audio = ".flac"
+
+    def __init__(self, df: pd.DataFrame, root: Union[str, Path], ):
+        # Get string representation of 'root' in case Path object is passed
+        root = os.fspath(root)
+        self._df = df
+        self._path = root
+        self._walker = sorted(str(p.stem) for p in Path(root).glob('*/*/*' + self._ext_audio))
 
     # ----------------------------
     # Number of items in dataset
     # ----------------------------
-    def __len__(self):
-        return len(self.df)
+    def __len__(self) -> int:
+        return len(self._walker)
 
     # ----------------------------
     # Get i'th item in dataset
     # ----------------------------
-    def __getitem__(self, idx):
-        # Absolute file path of the audio file - concatenate the audio directory with
-        # the relative path
-        audio_file = self.data_path + self.df.loc[idx, 'relative_path']
-        # Get the Class ID
-        class_id = self.df.loc[idx, 'classID']
-
-        aud = AudioUtil.open(audio_file)
-        # Some sounds have a higher sample rate, or fewer channels compared to the
-        # majority. So make all sounds have the same number of channels and same
-        # sample rate. Unless the sample rate is the same, the pad_trunc will still
-        # result in arrays of different lengths, even though the sound duration is
-        # the same.
-        re_aud = AudioUtil.resample(aud, self.sr)
-        re_chan = AudioUtil.re_channel(re_aud, self.channel)
-
-        dur_aud = AudioUtil.pad_trunc(re_chan, self.duration)
-        shift_aud = AudioUtil.time_shift(dur_aud, self.shift_pct)
-        spectrogram = AudioUtil.spectro_gram(shift_aud, n_mels=64, n_fft=1024, hop_len=None)
-        aug_spectrogram = AudioUtil.spectro_augment(spectrogram, max_mask_pct=0.1, n_freq_masks=2, n_time_masks=2)
-
-        return aug_spectrogram, class_id
+    def __getitem__(self, n: int) -> Tuple[Tensor, int, str]:
+        file_id = self._walker[n]
+        return load_item(file_id, self._path, self._ext_audio, self._df)
