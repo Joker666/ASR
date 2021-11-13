@@ -6,14 +6,18 @@ import pandas as pd
 import torchaudio
 from torch import Tensor
 from torch.utils.data import Dataset
-from torchaudio.datasets.utils import (
-    download_url,
-    extract_archive,
-)
 
 
 def load_item(file_id: str, path: str, ext_audio: str, df: pd.DataFrame) -> Tuple[Tensor, int, str]:
-    df_file_id = df.iloc[:, 0]
+    txt = df.loc[df['id'] == file_id, ["text"]]
+    transcript = txt.values[0][0]
+    file_audio = file_id + ext_audio
+    file_audio = os.path.join(path, "data", file_id[:2], file_audio)
+
+    # Load audio
+    waveform, sample_rate = torchaudio.load(file_audio)
+
+    return waveform, sample_rate, transcript
 
 
 # ----------------------------
