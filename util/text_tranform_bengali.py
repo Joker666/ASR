@@ -97,7 +97,42 @@ class TextTransformBengali:
         ; 91
         ʼ 92
         ‘ 93
-        <SPACE> 94
+        a 94
+        b 95
+        c 96
+        d 97
+        e 98
+        f 99
+        g 100
+        h 101
+        i 102
+        j 103
+        k 104
+        l 105
+        m 106
+        n 107
+        o 108
+        p 109
+        q 110
+        r 111
+        s 112
+        t 113
+        u 114
+        v 115
+        w 116
+        x 117
+        y 118
+        z 119
+        1 120
+        2 121
+        3 122
+        4 123
+        5 124
+        6 125
+        7 126
+        8 127
+        9 128
+        <SPACE> 129
         """
         self.char_map = {}
         self.index_map = {}
@@ -105,7 +140,7 @@ class TextTransformBengali:
             ch, index = line.split()
             self.char_map[ch] = int(index)
             self.index_map[int(index)] = ch
-        self.index_map[93] = ' '
+        self.index_map[129] = ' '
 
     def text_to_int(self, text):
         """ Use a character map and convert text to an integer sequence """
