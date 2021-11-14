@@ -148,11 +148,14 @@ class TextTransformBengali:
         """ Use a character map and convert text to an integer sequence """
         int_sequence = []
         for c in text:
+            ch = -1
             if c == ' ':
                 ch = self.char_map['<SPACE>']
             else:
-                ch = self.char_map[c]
-            int_sequence.append(ch)
+                if self.char_map.get(c) is not None:
+                    ch = self.char_map[c]
+            if ch > -1:
+                int_sequence.append(ch)
         return int_sequence
 
     def int_to_text(self, labels):
