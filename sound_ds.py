@@ -6,7 +6,7 @@ import pandas as pd
 import torchaudio
 from torch import Tensor
 from torch.utils.data import Dataset
-from torchaudio.datasets.utils import (download_url, extract_archive)
+from torchaudio.datasets.utils import (download_url)
 
 
 def load_item(file_id: str, path: str, ext_audio: str, df: pd.DataFrame) -> Tuple[Tensor, int, str]:
@@ -38,7 +38,7 @@ def unpack_all_in_dir(_dir, extension):
 class SoundDS(Dataset):
     _ext_audio = ".flac"
 
-    def __init__(self, df: pd.DataFrame, root: Union[str, Path], download: bool = False):
+    def __init__(self, root: Union[str, Path], download: bool = False, df: pd.DataFrame = None):
         # Get string representation of 'root' in case Path object is passed
         root = os.fspath(root)
         if not os.path.isdir(root):
@@ -52,22 +52,24 @@ class SoundDS(Dataset):
 
             ext_archive = ".zip"
             base_url = "http://www.openslr.org/resources/53/asr_bengali_"
-            # d_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-            d_keys = ['1', '2']
+            d_keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
 
             for key in d_keys:
-                url = os.path.join(base_url + key, url + ext_archive)
-                archive = os.path.join(root, FOLDER_IN_ARCHIVE + '_' + key)
+                url = base_url + key + ext_archive
+                archive = os.path.join(root, FOLDER_IN_ARCHIVE + '_' + key + ext_archive)
                 if not os.path.isfile(archive):
                     download_url(url, root)
             
-            unpack_all_in_dir(root)
+            self._path = os.path.join(root, FOLDER_IN_ARCHIVE)
+            
+            if not os.path.isdir(self._path):
+                unpack_all_in_dir(root, ext_archive)
 
-            df = pd.read_csv(root, FOLDER_IN_ARCHIVE + '/utt_spk_text.tsv', sep='\t', header=None)
+            df = pd.read_csv(self._path + '/utt_spk_text.tsv', sep='\t', header=None)
             df.columns = ["id", "hash", "text"]
             df.sort_values(by=['id'], inplace=True)
             self._df = df
-            self._path = os.path.join(root, FOLDER_IN_ARCHIVE)
+            
         
         self._walker = sorted(str(p.stem) for p in Path(self._path).glob('*/*/*' + self._ext_audio))
 

@@ -1,6 +1,7 @@
  .idea
 /data/
 /asr_bengali/
+/asr_data/
 
 .DS_Store
 
