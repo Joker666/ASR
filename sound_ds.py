@@ -56,7 +56,7 @@ def unpack_all_in_dir(_dir, extension):
             zip_ref.extractall(_dir)  # extract file to dir
             zip_ref.close()  # close file
         elif os.path.isdir(abs_path):
-            unpack_all_in_dir(abs_path)  # recurse this function with inner folder
+            unpack_all_in_dir(abs_path, extension)  # recurse this function with inner folder
 
 
 # ----------------------------
