@@ -132,10 +132,6 @@ class SoundDS(Dataset):
 
             unique_chars = sorted(unique_chars)
 
-            df = pd.DataFrame.from_dict(data)
-            df.sort_values(by=['id'], inplace=True)
-            self._df = df
-
             print(f'utt entry       : {len(lines)}')
             print(f'unique chars    : {len(unique_chars)}')
             print(f'data            : {len(data)}')
@@ -144,6 +140,10 @@ class SoundDS(Dataset):
             print(f'en bn mixed     : {en_bn_mixed}')
             print(f'flac audio files: {len(flac_list)}')
             print(f'flac_dic        : {len(flac_set)}')
+
+            df = pd.DataFrame.from_dict(data)
+            df.sort_values(by=['id'], inplace=True)
+            self._df = df
 
     # ----------------------------
     # Number of items in dataset
