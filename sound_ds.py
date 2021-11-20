@@ -90,12 +90,13 @@ class SoundDS(Dataset):
                     download_url(url, root)
 
             self._path = os.path.join(root, FOLDER_IN_ARCHIVE)
-            utt_path = self._path + '/utt_spk_text.tsv'
-            flac_list = sorted(str(p.stem) for p in Path(self._path).glob('*/*/*' + self._ext_audio))
-            flac_set = set(flac_list)
 
             if not os.path.isdir(self._path):
                 unpack_all_in_dir(root, ext_archive)
+
+            utt_path = self._path + '/utt_spk_text.tsv'
+            flac_list = sorted(str(p.stem) for p in Path(self._path).glob('*/*/*' + self._ext_audio))
+            flac_set = set(flac_list)
 
             data = []
             unique_chars = set()
